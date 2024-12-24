@@ -7,9 +7,10 @@ from configs import Config
 from transformers import AutoTokenizer
 from openai import OpenAI
 import json
+import os
 
 args = Config()
-client = OpenAI(api_key=args.ai_key)
+client = OpenAI(os.environ.get("ai_key"))
 
 
 tokenizer = AutoTokenizer.from_pretrained(args.backbone)
