@@ -111,7 +111,7 @@ class Config:
         self.period = 10
         self.epochs = 20
         self.batch_size = 4
-        self.device = "cuda:2"
+        self.device = "cuda:0"
         self.log = False
         self.log_name = 'temp'
         self.data_root = './data_incremental'
