@@ -112,7 +112,7 @@ class Config:
         self.epochs = 20
         self.batch_size = 4
         self.device = "cuda:0"
-        self.log = False
+        self.log = True
         self.log_name = 'temp'
         self.data_root = './data_incremental'
         self.backbone = 'bert-base-uncased'
