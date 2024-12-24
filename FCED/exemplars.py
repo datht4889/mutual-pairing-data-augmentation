@@ -10,7 +10,7 @@ import json
 import os
 
 args = Config()
-client = OpenAI(os.environ.get("ai_key"))
+client = OpenAI(api_key=os.environ.get("ai_key"))
 
 
 tokenizer = AutoTokenizer.from_pretrained(args.backbone)
