@@ -93,7 +93,7 @@ class Config:
         self.local_rank = 0
         self.world_size = 4
         self.amp = False
-        self.perm_id = os.environ.get('config.perm_id')
+        self.perm_id = int(os.environ.get('config.perm_id'))
         self.dataset = 'ACE'
         self.stream_root = './data_incremental'
         self.max_seqlen = 120
@@ -108,7 +108,7 @@ class Config:
         self.my_test = False
         self.input_map = False
         self.class_num = 10
-        self.shot_num = os.environ.get["config.shot_num"]
+        self.shot_num = int(os.environ.get["config.shot_num"])
         self.e_weight = 50
         self.no_replay = False
         self.period = 10
