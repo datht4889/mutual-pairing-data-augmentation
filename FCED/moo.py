@@ -220,7 +220,6 @@ class NashMTL(WeightMethod):
                         loss,
                         shared_parameters,
                         retain_graph=True,
-                        allow_unused=True
                     )
                 )
                 grad = torch.cat([torch.flatten(grad) for grad in g])
