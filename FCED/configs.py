@@ -108,7 +108,7 @@ class Config:
         self.my_test = False
         self.input_map = False
         self.class_num = 10
-        self.shot_num = int(os.environ.get["config.shot_num"])
+        self.shot_num = int(os.environ.get("config.shot_num"))
         self.e_weight = 50
         self.no_replay = False
         self.period = 10

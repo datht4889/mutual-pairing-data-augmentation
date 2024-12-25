@@ -41,6 +41,7 @@ def train(local_rank, args):
     logger.addHandler(ch)
     cur_time = time.strftime('%Y-%m-%d-%H-%M-%S')
     if args.log:
+        print("Create Log ...")
         if not os.path.exists(os.path.join(args.tb_dir, args.dataset, args.joint_da_loss, str(args.class_num) + "class", str(args.shot_num) + "shot", args.cl_aug, args.log_name, "perm" + str(args.perm_id))):
             os.makedirs(os.path.join(args.tb_dir, args.dataset, args.joint_da_loss, str(args.class_num) + "class", str(args.shot_num) + "shot", args.cl_aug, args.log_name, "perm" + str(args.perm_id)))
         if not os.path.exists(os.path.join(args.log_dir, args.dataset, args.joint_da_loss, str(args.class_num) + "class", str(args.shot_num) + "shot", args.cl_aug, args.log_name, "perm" + str(args.perm_id))):
