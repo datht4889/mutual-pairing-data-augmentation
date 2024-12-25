@@ -623,15 +623,15 @@ def train(local_rank, args):
             if ((ep + 1) % args.eval_freq == 0 and args.early_stop) or (ep + 1) == args.epochs: # TODO TODO
 
                 #### BEST TRAINING LOSS ####
-                best_logger.writelines("Task_ID: ", stage)
+                best_logger.writelines(f"Task_ID: {stage}")
                 best_logger.write('\n') 
-                best_logger.writelines("Best CE:", best_loss_ce)
+                best_logger.writelines(f"Best CE: {best_loss_ce}")
                 best_logger.write('\n') 
-                best_logger.writelines("Best AUG:", best_loss_aug)
+                best_logger.writelines(f"Best AUG: {best_loss_aug}")
                 best_logger.write('\n') 
-                best_logger.writelines("Best FD:", best_loss_fd)
+                best_logger.writelines(f"Best FD: {best_loss_fd}")
                 best_logger.write('\n') 
-                best_logger.writelines("Best PD:", best_loss_pd)
+                best_logger.writelines(f"Best PD: {best_loss_pd}")
                 best_logger.writeline("----------------------------------------------")
                 best_logger.write('\n') 
                 ###########################
