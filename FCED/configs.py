@@ -77,6 +77,9 @@
 #     args = parser.parse_args()
 #     return args
 
+
+import os
+
 class Config:
     def __init__(self):
         self.seed = 42
@@ -90,7 +93,7 @@ class Config:
         self.local_rank = 0
         self.world_size = 4
         self.amp = False
-        self.perm_id = '0'
+        self.perm_id = os.environ.get('config.perm_id')
         self.dataset = 'ACE'
         self.stream_root = './data_incremental'
         self.max_seqlen = 120
@@ -100,16 +103,16 @@ class Config:
         self.temperature = 2
         self.task_num = 5
         self.early_stop = False
-        self.patience = 5
+        self.patience = 5 
         self.eval_freq = 1
         self.my_test = False
         self.input_map = False
         self.class_num = 10
-        self.shot_num = 5
+        self.shot_num = os.environ.get["config.shot_num"]
         self.e_weight = 50
         self.no_replay = False
         self.period = 10
-        self.epochs = 20
+        self.epochs = 30
         self.batch_size = 4
         self.device = "cuda:0"
         self.log = True
@@ -118,31 +121,31 @@ class Config:
         self.backbone = 'bert-base-uncased'
         self.lr = 2e-5
         self.decay = 1e-4
-        self.no_freeze_bert = False
-        self.dweight_loss = False
+        self.no_freeze_bert = True
+        self.dweight_loss = True
         self.alpha = 2.0
         self.beta = 3.0
-        self.distill = None  # Required field
-        self.rep_aug = None  # Required field
+        self.distill = 'mul'  # Required field
+        self.rep_aug = 'mean'  # Required field
         self.gamma = 1
         self.theta = 6
-        self.cl_temp = 0.5
+        self.cl_temp = 0.07
         self.ucl = False
-        self.cl_aug = None
-        self.sub_max = False
+        self.cl_aug = 'shuffle'
+        self.sub_max = True
         self.leave_zero = False
-        self.single_label = False
-        self.aug_repeat_times = 1
-        self.aug_dropout_times = 1
+        self.single_label = True
+        self.aug_repeat_times = 5
+        self.aug_dropout_times = 0
         self.joint_da_loss = "none"
-        self.tlcl = False
+        self.tlcl = True
         self.mse_loss = False
         self.pseudo_label = False
         self.llm_augment = False
         self.llm_augment_times = 5
         self.sim_event_type = False
-        self.sam = False
+        self.sam = True
         self.sam_type = "current"
-        self.rho = 0.1
-        self.skip_first_cl = "none"
+        self.rho = 0.05
+        self.skip_first_cl = "ucl+tlcl"
         self.method = None
