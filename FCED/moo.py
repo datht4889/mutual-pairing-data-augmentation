@@ -9,7 +9,7 @@ import torch
 import torch.nn.functional as F
 from scipy.optimize import minimize, least_squares  
 
-from .min_norm_solvers import MinNormSolver, gradient_normalizers
+from min_norm_solvers import MinNormSolver, gradient_normalizers
 
 
 class WeightMethod:
