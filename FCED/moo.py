@@ -267,7 +267,7 @@ class NashMTL(WeightMethod):
             shared_parameters=shared_parameters,
             **kwargs,
         )
-        loss.backward()
+        # loss.backward()
 
         # make sure the solution for shared params has norm <= self.eps
         if self.max_norm > 0:
