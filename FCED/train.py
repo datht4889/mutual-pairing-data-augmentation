@@ -572,7 +572,6 @@ def train(local_rank, args):
                             prev_feature = normalize(prev_feature.view(-1, prev_feature.shape[-1]), dim=-1)
                             cur_feature = normalize(context_feat.view(-1, prev_feature.shape[-1]), dim=-1)
                             loss_fd = criterion_fd(prev_feature, cur_feature, torch.ones(prev_feature.size(0)).to(device)) # TODO: Don't know whether the code is right
-                            print("Loss FD: ", loss_fd)
                         else:
                             loss_fd = 0
                         if args.distill == "pd" or args.distill == "mul":
@@ -594,10 +593,13 @@ def train(local_rank, args):
                             loss = loss + args.alpha * loss_fd + args.beta * loss_pd
 
                     # loss.backward()
-                    #### ADD NEW LOST ####
-                    loss_list = torch.tensor([torch.tensor(loss), loss_fd, loss_pd])
-                    loss, alpha = args.mul_loss(losses=loss_list, shared_parameters=parameters)
-                    ######################
+                    if stage > 0:
+                        #### ADD NEW LOST ####
+                        loss_list = torch.tensor([torch.tensor(loss), loss_fd, loss_pd])
+                        loss, alpha = args.mul_loss(losses=loss_list, shared_parameters=parameters)
+                        ######################
+                    else:
+                        loss.backward()
                     optimizer.second_step(zero_grad=True)
                     
 
