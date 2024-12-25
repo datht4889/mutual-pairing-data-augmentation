@@ -592,12 +592,7 @@ def train(local_rank, args):
                         else:
                             loss = loss + args.alpha * loss_fd + args.beta * loss_pd
 
-                    # loss.backward()
-                    #### ADD NEW LOST ####
-                    loss_list = torch.tensor([torch.tensor(loss), loss_fd, loss_pd])
-                    print(loss_list)
-                    loss, alpha = args.mul_loss(losses=loss_list, shared_parameters=parameters)
-                    ######################
+                    loss.backward()
                     optimizer.second_step(zero_grad=True)
                     
 
