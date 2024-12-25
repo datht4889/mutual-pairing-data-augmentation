@@ -632,7 +632,7 @@ def train(local_rank, args):
                 best_logger.writelines(f"Best FD: {best_loss_fd}")
                 best_logger.write('\n') 
                 best_logger.writelines(f"Best PD: {best_loss_pd}")
-                best_logger.writeline("----------------------------------------------")
+                best_logger.writelines("----------------------------------------------")
                 best_logger.write('\n') 
                 ###########################
 
