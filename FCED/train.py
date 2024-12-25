@@ -593,6 +593,7 @@ def train(local_rank, args):
                             loss = loss + args.alpha * loss_fd + args.beta * loss_pd
 
                     # loss.backward()
+                    print("LOSS: ",loss)
                     if stage > 0:
                         #### ADD NEW LOST ####
                         loss_list = torch.tensor([torch.tensor(loss), loss_fd, loss_pd])
@@ -639,7 +640,7 @@ def train(local_rank, args):
                 best_logger.writelines(f"Best FD: {best_loss_fd}")
                 best_logger.write('\n') 
                 best_logger.writelines(f"Best PD: {best_loss_pd}")
-                best_logger.writeline("----------------------------------------------")
+                best_logger.writelines("----------------------------------------------")
                 best_logger.write('\n') 
                 ###########################
 
