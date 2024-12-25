@@ -41,7 +41,6 @@ def train(local_rank, args):
     logger.addHandler(ch)
     cur_time = time.strftime('%Y-%m-%d-%H-%M-%S')
     if args.log:
-        print("Create Log ...")
         if not os.path.exists(os.path.join(args.tb_dir, args.dataset, args.joint_da_loss, str(args.class_num) + "class", str(args.shot_num) + "shot", args.cl_aug, args.log_name, "perm" + str(args.perm_id))):
             os.makedirs(os.path.join(args.tb_dir, args.dataset, args.joint_da_loss, str(args.class_num) + "class", str(args.shot_num) + "shot", args.cl_aug, args.log_name, "perm" + str(args.perm_id)))
         if not os.path.exists(os.path.join(args.log_dir, args.dataset, args.joint_da_loss, str(args.class_num) + "class", str(args.shot_num) + "shot", args.cl_aug, args.log_name, "perm" + str(args.perm_id))):
@@ -110,7 +109,16 @@ def train(local_rank, args):
         prev_learned_types = state_dict['prev_learned_types']
     if args.early_stop:
         e_pth = "./checkpoints/" + args.log_name + ".pth"
+
+
+    best_logger = open("./LOSS_LOG.txt", 'a')
+    # parameters = [param for param in model.input_map.parameters()]
+    parameters = [param for param in model.parameters()]
+        
     for stage in task_idx:
+
+        best_loss_ce, best_loss_aug, best_loss_fd, best_loss_pd = 1e9, 1e9, 1e9, 1e9
+
         # if stage > 0:
         #     break
         logger.info(f"Stage {stage}")
@@ -584,7 +592,11 @@ def train(local_rank, args):
                         else:
                             loss = loss + args.alpha * loss_fd + args.beta * loss_pd
 
-                    loss.backward()
+                    # loss.backward()
+                    #### ADD NEW LOST ####
+                    loss_list = torch.tensor([loss, loss_fd, loss_pd])
+                    loss, alpha = args.mul_loss(losses=loss_list, shared_parameters=parameters)
+                    ######################
                     optimizer.second_step(zero_grad=True)
                     
 
@@ -600,9 +612,38 @@ def train(local_rank, args):
             logger.info(f'loss_pd: {loss_pd}')
             logger.info(f'loss_all: {loss}')
 
+            #### ADD BEST LOGGER ####
+            if loss_ce < best_loss_ce:
+                best_loss_ce = loss_ce
+            if loss_ce < best_loss_aug:
+                best_loss_aug = loss_ce
+            if loss_ce < best_loss_fd:
+                best_loss_fd = loss_ce
+            if loss_ce < best_loss_pd:
+                best_loss_pd = loss_ce 
+            #########################
+
+
             if ((ep + 1) % args.eval_freq == 0 and args.early_stop) or (ep + 1) == args.epochs: # TODO TODO
+
+                #### BEST TRAINING LOSS ####
+                best_logger.writelines("Task_ID: ", stage)
+                best_logger.write('\n') 
+                best_logger.writelines("Best CE:", best_loss_ce)
+                best_logger.write('\n') 
+                best_logger.writelines("Best AUG:", best_loss_aug)
+                best_logger.write('\n') 
+                best_logger.writelines("Best FD:", best_loss_fd)
+                best_logger.write('\n') 
+                best_logger.writelines("Best PD:", best_loss_pd)
+                best_logger.writeline("----------------------------------------------")
+                best_logger.write('\n') 
+                ###########################
+
                 # Evaluation process
                 logger.info("Evaluation process")
+                best_logger.writelines("Evaluation process")
+                best_logger.write('\n') 
                 model.eval()
                 with torch.no_grad():
                     if args.single_label:
@@ -645,6 +686,8 @@ def train(local_rank, args):
                         else:
                             no_better += 1
                             logger.info(f'No better: {no_better}/{args.patience}')
+                            best_logger.writelines(f'No better: {no_better}/{args.patience}')
+                            best_logger.write('\n')
                         # if no_better >= args.patience:
                         #     logger.info("Early stopping with dev_score: " + str(dev_score))
                         #     logger.info(f'marco F1 {micro_F1}')
@@ -661,6 +704,16 @@ def train(local_rank, args):
                         dev_scores_ls.append(dev_score if dev_score else micro_F1)
                         logger.info(f"Dev scores list: {dev_scores_ls}")
                         logger.info(f"bc:{bc}")
+
+                        best_logger.writelines("Early stopping with dev_score: " + str(dev_score))
+                        best_logger.write('\n')
+                        best_logger.writelines(f'marco F1 {micro_F1}')
+                        best_logger.write('\n')
+                        best_logger.writelines(f"Dev scores list: {dev_scores_ls}")
+                        best_logger.write('\n')
+                        best_logger.writelines(f"bc:{bc}")
+                        best_logger.write('\n')
+
                     
 
 

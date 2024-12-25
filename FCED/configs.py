@@ -79,6 +79,7 @@
 
 
 import os
+from moo import *
 
 class Config:
     def __init__(self):
@@ -149,3 +150,4 @@ class Config:
         self.rho = 0.05
         self.skip_first_cl = "ucl+tlcl"
         self.method = None
+        self.mul_loss = NashMTL(n_tasks=3, device=self.device)
