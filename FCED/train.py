@@ -18,6 +18,7 @@ import torch.multiprocessing as mp
 from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data.distributed import DistributedSampler
 from sam import SAM
+from moo import *
 
 
 
@@ -405,7 +406,7 @@ def train(local_rank, args):
                     optimizer.zero_grad()
                     loss.backward()
                     optimizer.first_step(zero_grad=True)
-
+                    
                     return_dict = model(train_x, train_masks, train_span)
                     outputs, context_feat, trig_feat = return_dict['outputs'], return_dict['context_feat'], return_dict['trig_feat']
 
@@ -589,18 +590,20 @@ def train(local_rank, args):
                         # loss_pd = criterion_pd(torch.cat([item / T for item in outputs]), torch.cat([item / T for item in prev_outputs]))
                         if args.dweight_loss and stage > 0:
                             loss = loss * (1 - w) + (loss_fd + loss_pd) * w
+                            loss_list = [loss, loss_fd, loss_pd]
                         else:
                             loss = loss + args.alpha * loss_fd + args.beta * loss_pd
+                            loss_list = [loss, loss_fd, loss_pd]
 
                     # loss.backward()
-                    print("LOSS: ",loss)
-                    if stage > 0:
+                    if stage > 0 and args.distill != "none":
                         #### ADD NEW LOST ####
-                        loss_list = torch.tensor([torch.tensor(loss), loss_fd, loss_pd])
+                        print("LOSS LIST", loss_list)
                         loss, alpha = args.mul_loss(losses=loss_list, shared_parameters=parameters)
                         ######################
-                    else:
-                        loss.backward()
+                    # else:
+                    #     loss, alpha = mul_loss(losses=[loss], shared_parameters=parameters)
+                    loss.backward()
                     optimizer.second_step(zero_grad=True)
                     
 
