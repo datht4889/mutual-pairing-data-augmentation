@@ -95,8 +95,8 @@ class Config:
         self.world_size = 4
         self.amp = False
         self.perm_id = int(os.environ.get('config.perm_id'))
-        self.dataset = 'ACE'
-        self.stream_root = './data_incremental'
+        self.dataset = os.environ.get('config.dataset')
+        self.stream_root = './augmented_data' # augmented_data or data_incremental
         self.max_seqlen = 120
         self.adamw_eps = 1e-7
         self.fixed_enum = True
@@ -118,7 +118,7 @@ class Config:
         self.device = "cuda:0"
         self.log = True
         self.log_name = 'temp'
-        self.data_root = './data_incremental'
+        self.data_root = './augmented_data' # augmented_data or data_incremental
         self.backbone = 'bert-base-uncased'
         self.lr = 2e-5
         self.decay = 1e-4
@@ -131,7 +131,7 @@ class Config:
         self.gamma = 1
         self.theta = 6
         self.cl_temp = 0.07
-        self.ucl = False
+        self.ucl = True
         self.cl_aug = 'shuffle'
         self.sub_max = True
         self.leave_zero = False
