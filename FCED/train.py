@@ -30,6 +30,9 @@ from sam import SAM
 def train(local_rank, args):
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
+
+    print("PERM---SHOT NUM",int(os.environ.get('config.perm_id')), int(os.environ.get("config.shot_num")))
+
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
     formatter = logging.Formatter(
