@@ -113,7 +113,7 @@ class Config:
         self.e_weight = 50
         self.no_replay = False
         self.period = 10
-        self.epochs = 30
+        self.epochs = 20
         self.batch_size = 4
         self.device = "cuda:0"
         self.log = True
