@@ -745,7 +745,5 @@ if __name__ == "__main__":
             nprocs=args.world_size,
             join=True)
     else:
-        print(args.perm_id)
-        print(args.shot_num)
         train(0, args)
         
