@@ -114,7 +114,7 @@ def train(local_rank, args):
 
     best_logger = open("./LOSS_LOG.txt", 'a')
     # parameters = [param for param in model.input_map.parameters()]
-    parameters = [param for param in model.parameters()]
+    parameters = [param for param in model.input_map.parameters()]
         
     for stage in task_idx:
 
@@ -589,16 +589,27 @@ def train(local_rank, args):
                             loss_pd = 0
                         # loss_pd = criterion_pd(torch.cat([item / T for item in outputs]), torch.cat([item / T for item in prev_outputs]))
                         if args.dweight_loss and stage > 0:
-                            loss = loss * (1 - w) + (loss_fd + loss_pd) * w
-                            loss_list = [loss, loss_fd, loss_pd]
+                            print(loss, loss_fd, loss_pd )
+                            # loss = loss * (1 - w) + (loss_fd + loss_pd) * w
+                            loss_list = [loss_pd]
                         else:
-                            loss = loss + args.alpha * loss_fd + args.beta * loss_pd
-                            loss_list = [loss, loss_fd, loss_pd]
+                            print(loss, loss_fd, loss_pd )
+                            # loss = loss + args.alpha * loss_fd + args.beta * loss_pd
+                            loss_list = [loss_pd]
 
                     # loss.backward()
                     if stage > 0 and args.distill != "none":
                         #### ADD NEW LOST ####
-                        print("____LOSS LIST____", loss_list)
+                        for l in loss_list:
+                            print("____LOSS LIST____", l)
+                            g = list(
+                                torch.autograd.grad(
+                                    l,
+                                    parameters,
+                                    retain_graph=True,
+                                    allow_unused=True
+                                )
+                            )
                         loss, alpha = args.mul_loss(losses=loss_list, shared_parameters=parameters)
                         ######################
                     # else:
