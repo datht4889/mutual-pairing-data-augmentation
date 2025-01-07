@@ -113,8 +113,8 @@ def train(local_rank, args):
 
 
     best_logger = open("./LOSS_LOG.txt", 'a')
-    # parameters = [param for param in model.input_map.parameters()]
-    parameters = [param for param in model.parameters()]
+    parameters = [param for param in model.input_map.parameters()]
+    # parameters = [param for param in model.parameters()]
         
     for stage in task_idx:
 

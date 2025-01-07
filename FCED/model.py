@@ -25,7 +25,7 @@ class BertED(nn.Module):
         self.fc = nn.Linear(self.input_dim, class_num)
         self.b_fc = nn.Linear(self.input_dim, 1)
         if self.is_input_mapping:
-            self.map_hidden_dim = 512 # 512 is implemented by the paper
+            self.map_hidden_dim = 768 # 512 is implemented by the paper
             self.map_input_dim =  self.input_dim * 2
             self.input_map = nn.Sequential(
                 nn.Linear(self.map_input_dim, self.map_hidden_dim),

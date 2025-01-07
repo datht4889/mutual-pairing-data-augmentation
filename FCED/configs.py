@@ -107,7 +107,7 @@ class Config:
         self.patience = 5 
         self.eval_freq = 1
         self.my_test = False
-        self.input_map = False
+        self.input_map = True
         self.class_num = 10
         self.shot_num = int(os.environ.get("config.shot_num"))
         self.e_weight = 50
