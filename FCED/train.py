@@ -598,7 +598,7 @@ def train(local_rank, args):
                     # loss.backward()
                     if stage > 0 and args.distill != "none":
                         #### ADD NEW LOST ####
-                        print("LOSS LIST", loss_list)
+                        print("____LOSS LIST____", loss_list)
                         loss, alpha = args.mul_loss(losses=loss_list, shared_parameters=parameters)
                         ######################
                     # else:
