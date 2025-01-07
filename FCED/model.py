@@ -60,11 +60,9 @@ class BertED(nn.Module):
         return_dict['outputs'] = outputs
         return_dict['context_feat'] = context_feature
         return_dict['trig_feat'] = trig_feature
-        try:
-            return_dict['binary_logits'] = F.sigmoid(self.b_fc(trig_feature))
-        except: 
-            print(trig_feature.shape)
-            print(self.b_fc(trig_feature).shape)
+        return_dict['binary_logits'] = F.sigmoid(self.b_fc(trig_feature))
+        print(trig_feature.shape)
+        print(self.b_fc(trig_feature).shape)
         # if args.single_label:
         #     return_outputs = self.fc(enc_out_feature).view(-1, args.class_num + 1)
         # else:
