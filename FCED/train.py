@@ -114,7 +114,7 @@ def train(local_rank, args):
 
     best_logger = open("./LOSS_LOG.txt", 'a')
     # parameters = [param for param in model.input_map.parameters()]
-    parameters = [param for param in model.input_map.parameters()]
+    parameters = [param for param in model.parameters()]
         
     for stage in task_idx:
 
@@ -607,7 +607,7 @@ def train(local_rank, args):
                                     l,
                                     parameters,
                                     retain_graph=True,
-                                    allow_unused=True
+                                    # allow_unused=True
                                 )
                             )
                         loss, alpha = args.mul_loss(losses=loss_list, shared_parameters=parameters)
