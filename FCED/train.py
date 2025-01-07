@@ -591,11 +591,11 @@ def train(local_rank, args):
                         if args.dweight_loss and stage > 0:
                             print(loss, loss_fd, loss_pd )
                             # loss = loss * (1 - w) + (loss_fd + loss_pd) * w
-                            loss_list = [loss_pd]
+                            loss_list = [loss, loss_fd, loss_pd]
                         else:
                             print(loss, loss_fd, loss_pd )
                             # loss = loss + args.alpha * loss_fd + args.beta * loss_pd
-                            loss_list = [loss_pd]
+                            loss_list = [loss, loss_fd, loss_pd]
 
                     # loss.backward()
                     if stage > 0 and args.distill != "none":
