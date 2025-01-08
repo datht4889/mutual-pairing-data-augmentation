@@ -360,23 +360,22 @@ def train(local_rank, args):
                     
                     
                 if stage > 0 and args.distill != "none":
-                    prev_model.train()
-                    # with torch.no_grad():
-                    prev_return_dict = prev_model(train_x, train_masks, train_span)
-                    prev_outputs, prev_feature = prev_return_dict['outputs'], prev_return_dict['context_feat']
+                    prev_model.eval()
+                    with torch.no_grad():
+                        prev_return_dict = prev_model(train_x, train_masks, train_span)
+                        prev_outputs, prev_feature = prev_return_dict['outputs'], prev_return_dict['context_feat']
 
-                    if args.joint_da_loss == "dist" or args.joint_da_loss == "mul":
-                        outputs = torch.cat([outputs, da_outputs])
-                        context_feat = torch.cat([context_feat, da_context_feat])
-                        prev_return_dict_cl = prev_model(da_x, da_masks, da_span)
-                        prev_outputs_cl, prev_feature_cl = prev_return_dict_cl['outputs'], prev_return_dict_cl['context_feat']
-                        prev_outputs, prev_feature = torch.cat([prev_outputs, prev_outputs_cl]), torch.cat([prev_feature, prev_feature_cl])
+                        if args.joint_da_loss == "dist" or args.joint_da_loss == "mul":
+                            outputs = torch.cat([outputs, da_outputs])
+                            context_feat = torch.cat([context_feat, da_context_feat])
+                            prev_return_dict_cl = prev_model(da_x, da_masks, da_span)
+                            prev_outputs_cl, prev_feature_cl = prev_return_dict_cl['outputs'], prev_return_dict_cl['context_feat']
+                            prev_outputs, prev_feature = torch.cat([prev_outputs, prev_outputs_cl]), torch.cat([prev_feature, prev_feature_cl])
                     # prev_invalid_mask_op = torch.BoolTensor([item not in prev_learned_types for item in range(args.class_num)]).to(device)
                     prev_valid_mask_op = torch.nonzero(torch.BoolTensor([item in prev_learned_types for item in range(args.class_num + 1)]).to(device))
                     if args.distill == "fd" or args.distill == "mul":
                         prev_feature = normalize(prev_feature.view(-1, prev_feature.shape[-1]), dim=-1)
                         cur_feature = normalize(context_feat.view(-1, prev_feature.shape[-1]), dim=-1)
-                        print("train di ma duma")
                         print("__________LOSS FD _________", prev_feature.requires_grad, cur_feature.requires_grad)
                         loss_fd = criterion_fd(prev_feature, cur_feature, torch.ones(prev_feature.size(0)).to(device)) # TODO: Don't know whether the code is right
                     else:
