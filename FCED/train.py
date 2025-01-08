@@ -361,7 +361,6 @@ def train(local_rank, args):
                     
                 if stage > 0 and args.distill != "none":
                     prev_model.train()
-                    print("train di ma duma")
                     # with torch.no_grad():
                     prev_return_dict = prev_model(train_x, train_masks, train_span)
                     prev_outputs, prev_feature = prev_return_dict['outputs'], prev_return_dict['context_feat']
@@ -377,6 +376,7 @@ def train(local_rank, args):
                     if args.distill == "fd" or args.distill == "mul":
                         prev_feature = normalize(prev_feature.view(-1, prev_feature.shape[-1]), dim=-1)
                         cur_feature = normalize(context_feat.view(-1, prev_feature.shape[-1]), dim=-1)
+                        print("train di ma duma")
                         print("__________LOSS FD _________", prev_feature.requires_grad, cur_feature.requires_grad)
                         loss_fd = criterion_fd(prev_feature, cur_feature, torch.ones(prev_feature.size(0)).to(device)) # TODO: Don't know whether the code is right
                     else:
