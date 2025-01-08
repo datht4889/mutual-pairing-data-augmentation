@@ -360,7 +360,8 @@ def train(local_rank, args):
                     
                     
                 if stage > 0 and args.distill != "none":
-                    # prev_model.eval()
+                    prev_model.train()
+                    print("train di ma duma")
                     # with torch.no_grad():
                     prev_return_dict = prev_model(train_x, train_masks, train_span)
                     prev_outputs, prev_feature = prev_return_dict['outputs'], prev_return_dict['context_feat']
