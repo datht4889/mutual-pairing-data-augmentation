@@ -113,8 +113,8 @@ def train(local_rank, args):
 
 
     best_logger = open("./LOSS_LOG.txt", 'a')
-    parameters = [param for param in model.input_map.parameters()]
-    # parameters = [param for param in model.parameters()]
+    # parameters = [param for param in model.input_map.parameters()]
+    parameters = [param for param in model.parameters()]
         
     for stage in task_idx:
 
@@ -603,7 +603,7 @@ def train(local_rank, args):
                     if stage > 0 and args.distill != "none":
                         #### ADD NEW LOST ####
                         # pd_params = prev_model.input_map.parameters()
-                        parameters = model.input_map.parameters()
+                        parameters = model.parameters()
                         # fd_params = prev_model.input_map.parameters()
                         # parameters = [params, fd_params, pd_params]
                         for i in range(len(loss_list)):
