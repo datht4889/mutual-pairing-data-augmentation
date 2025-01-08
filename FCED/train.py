@@ -114,7 +114,7 @@ def train(local_rank, args):
 
     best_logger = open("./LOSS_LOG.txt", 'a')
     # parameters = [param for param in model.input_map.parameters()]
-    parameters = [param for param in model.parameters()]
+    # parameters = [param for param in model.parameters()]
         
     for stage in task_idx:
 
@@ -601,21 +601,7 @@ def train(local_rank, args):
                     # loss.backward()
                     if stage > 0 and args.distill != "none":
                         #### ADD NEW LOST ####
-                        # pd_params = prev_model.input_map.parameters()
-                        parameters = [p for p in model.parameters()]
-                        # fd_params = prev_model.input_map.parameters()
-                        # parameters = [params, fd_params, pd_params]
-                        for i in range(len(loss_list)):
-                            print("____LOSS LIST____", loss_list[i])
-                            print(p for p in parameters if not p.requires_grad)
-                            g = list(
-                                torch.autograd.grad(
-                                    loss_list[i],
-                                    parameters,
-                                    retain_graph=True,
-                                    allow_unused=True
-                                )
-                            )
+                        parameters = [p for p in model.parameters() if p.requires_grad ]
                         loss, alpha = args.mul_loss(losses=loss_list, shared_parameters=parameters)
                         ######################
                     # else:
