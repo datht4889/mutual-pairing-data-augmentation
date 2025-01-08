@@ -213,7 +213,6 @@ def train(local_rank, args):
                 # else:
                 return_dict = model(train_x, train_masks, train_span)
                 outputs, context_feat, trig_feat = return_dict['outputs'], return_dict['context_feat'], return_dict['trig_feat']
-
                 sim_event_loss = 0
                 if args.sim_event_type:
                     extended_event_type_reps = []
@@ -376,7 +375,7 @@ def train(local_rank, args):
                     if args.distill == "fd" or args.distill == "mul":
                         prev_feature = normalize(prev_feature.view(-1, prev_feature.shape[-1]), dim=-1)
                         cur_feature = normalize(context_feat.view(-1, prev_feature.shape[-1]), dim=-1)
-                        print("__________LOSS FD _________", prev_feature.requires_grad, cur_feature.requires_grad)
+                        print("__________LOSS FD _________", prev_feature.requires_grad, context_feat.requires_grad)
                         loss_fd = criterion_fd(prev_feature, cur_feature, torch.ones(prev_feature.size(0)).to(device)) # TODO: Don't know whether the code is right
                     else:
                         loss_fd = 0

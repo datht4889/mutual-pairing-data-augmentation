@@ -107,7 +107,7 @@ class Config:
         self.patience = 5 
         self.eval_freq = 1
         self.my_test = False
-        self.input_map = True
+        self.input_map = False
         self.class_num = 10
         self.shot_num = int(os.environ.get("config.shot_num"))
         self.e_weight = 50
@@ -122,7 +122,7 @@ class Config:
         self.backbone = 'bert-base-uncased'
         self.lr = 2e-5
         self.decay = 1e-4
-        self.no_freeze_bert = False
+        self.no_freeze_bert = True
         self.dweight_loss = True
         self.alpha = 2.0
         self.beta = 3.0
