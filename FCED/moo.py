@@ -215,7 +215,7 @@ class NashMTL(WeightMethod):
 
             grads = {}
             for i, loss in enumerate(losses):
-                g = list(
+                grad = list(
                     torch.autograd.grad(
                         loss,
                         shared_parameters,
