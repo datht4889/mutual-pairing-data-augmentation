@@ -375,7 +375,6 @@ def train(local_rank, args):
                     if args.distill == "fd" or args.distill == "mul":
                         prev_feature = normalize(prev_feature.view(-1, prev_feature.shape[-1]), dim=-1)
                         cur_feature = normalize(context_feat.view(-1, prev_feature.shape[-1]), dim=-1)
-                        print("__________LOSS FD _________", prev_feature.requires_grad, context_feat.requires_grad)
                         loss_fd = criterion_fd(prev_feature, cur_feature, torch.ones(prev_feature.size(0)).to(device)) # TODO: Don't know whether the code is right
                     else:
                         loss_fd = 0
@@ -603,17 +602,18 @@ def train(local_rank, args):
                     if stage > 0 and args.distill != "none":
                         #### ADD NEW LOST ####
                         # pd_params = prev_model.input_map.parameters()
-                        parameters = model.parameters()
+                        parameters = [p for p in model.parameters()]
                         # fd_params = prev_model.input_map.parameters()
                         # parameters = [params, fd_params, pd_params]
                         for i in range(len(loss_list)):
                             print("____LOSS LIST____", loss_list[i])
+                            print(p for p in parameters if not p.requires_grad)
                             g = list(
                                 torch.autograd.grad(
                                     loss_list[i],
                                     parameters,
                                     retain_graph=True,
-                                    # allow_unused=True
+                                    allow_unused=True
                                 )
                             )
                         loss, alpha = args.mul_loss(losses=loss_list, shared_parameters=parameters)
