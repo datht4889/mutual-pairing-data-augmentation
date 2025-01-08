@@ -224,10 +224,10 @@ class NashMTL(WeightMethod):
                     )
                 )
                 # grad = torch.cat([torch.flatten(grad) for grad in g])
-                grad = [
+                grad = torch.cat([
                     g.flatten() if g is not None else torch.zeros_like(p, device=self.device).flatten()
                     for g, p in zip(grad, shared_parameters)
-                ]   
+                ])   
                 grads[i] = grad
 
             G = torch.stack(tuple(v for v in grads.values()))
