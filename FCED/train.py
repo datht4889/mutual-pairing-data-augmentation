@@ -593,7 +593,7 @@ def train(local_rank, args):
                             loss.backward()
                         else:
                             # print(loss, loss_fd, loss_pd )
-                            loss = loss + args.alpha * loss_fd + args.beta * loss_pd
+                            # loss = loss + args.alpha * loss_fd + args.beta * loss_pd
                             loss_list = [loss, loss_fd, loss_pd]
                             parameters = [p for p in model.parameters() if p.requires_grad ]
                             loss, alpha = args.mul_loss(losses=loss_list, shared_parameters=parameters)
