@@ -589,12 +589,12 @@ def train(local_rank, args):
                         # loss_pd = criterion_pd(torch.cat([item / T for item in outputs]), torch.cat([item / T for item in prev_outputs]))
                         if args.dweight_loss and stage > 0:
                             # print(loss, loss_fd, loss_pd )
-                            # loss = loss * (1 - w) + (loss_fd + loss_pd) * w
+                            loss = loss * (1 - w) + (loss_fd + loss_pd) * w
                             loss_list = [loss, loss_fd, loss_pd]
                             print(loss_list)
                         else:
                             # print(loss, loss_fd, loss_pd )
-                            # loss = loss + args.alpha * loss_fd + args.beta * loss_pd
+                            loss = loss + args.alpha * loss_fd + args.beta * loss_pd
                             loss_list = [loss, loss_fd, loss_pd]
                             print(loss_list)
 
