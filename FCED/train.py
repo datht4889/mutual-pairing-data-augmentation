@@ -590,23 +590,16 @@ def train(local_rank, args):
                         if args.dweight_loss and stage > 0:
                             # print(loss, loss_fd, loss_pd )
                             loss = loss * (1 - w) + (loss_fd + loss_pd) * w
-                            loss_list = [loss, loss_fd, loss_pd]
-                            print(loss_list)
+                            loss.backward()
                         else:
                             # print(loss, loss_fd, loss_pd )
                             loss = loss + args.alpha * loss_fd + args.beta * loss_pd
                             loss_list = [loss, loss_fd, loss_pd]
-                            print(loss_list)
-
-                    # loss.backward()
-                    if stage > 0 and args.distill != "none":
-                        #### ADD NEW LOST ####
-                        parameters = [p for p in model.parameters() if p.requires_grad ]
-                        loss, alpha = args.mul_loss(losses=loss_list, shared_parameters=parameters)
-                        ######################
-                    # else:
-                    #     loss, alpha = mul_loss(losses=[loss], shared_parameters=parameters)
-                    loss.backward()
+                            parameters = [p for p in model.parameters() if p.requires_grad ]
+                            loss, alpha = args.mul_loss(losses=loss_list, shared_parameters=parameters)
+                            # print(loss_list)
+                    else:
+                        loss.backward()
                     optimizer.second_step(zero_grad=True)
                     
 
