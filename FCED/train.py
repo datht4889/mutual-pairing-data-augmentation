@@ -587,45 +587,46 @@ def train(local_rank, args):
                         else:
                             loss_pd = 0
 
+                        # loss_pd = criterion_pd(torch.cat([item / T for item in outputs]), torch.cat([item / T for item in prev_outputs]))
+                        if args.dweight_loss and stage > 0:
+                            loss = loss * (1 - w) + (loss_fd + loss_pd) * w
+                            # loss.backward()
+                            loss_list = [loss]
+                        else:
+                            # loss = loss + args.alpha * loss_fd + args.beta * loss_pd
+                            loss_list = [loss, loss_fd, loss_pd]
+
                         if args.mul_task_type == 'PCGrad':
                             mul_loss = PCGrad(
                                 device=device,
-                                n_tasks=len(loss),
+                                n_tasks=len(loss_list),
                             )
                         if args.mul_task_type == 'IMTLG':
                             mul_loss = IMTLG(
                                 device=device,
-                                n_tasks=len(loss),
+                                n_tasks=len(loss_list),
                             )
                         
                         
                         if args.mul_task_type == 'MGDA':
                             mul_loss = MGDA(
                                 device=device,
-                                n_tasks=len(loss),
+                                n_tasks=len(loss_list),
                             )   
 
                         if args.mul_task_type == 'NashMTL':
-                            mul_loss = NashMTL(n_tasks=len(loss), device=device)
+                            mul_loss = NashMTL(n_tasks=len(loss_list), device=device)
                             
                         if args.mul_task_type == 'FairGrad':
-                            mul_loss = FairGrad(n_tasks=len(loss), device=device)
+                            mul_loss = FairGrad(n_tasks=len(loss_list), device=device)
 
                         # if args.mul_task_type == 'ExcessMTL':
-                        #     mul_loss = ExcessMTL(n_tasks=len(loss), device=device)
+                        #     mul_loss = ExcessMTL(n_tasks=len(loss_list), device=device)
 
                         # if args.mul_task_type == 'FAMO':
-                        #     mul_loss = FAMO(n_tasks=len(loss), device=device)
-                        
-                        # loss_pd = criterion_pd(torch.cat([item / T for item in outputs]), torch.cat([item / T for item in prev_outputs]))
-                        if args.dweight_loss and stage > 0:
-                            loss = loss * (1 - w) + (loss_fd + loss_pd) * w
-                            loss.backward()
-                        else:
-                            # loss = loss + args.alpha * loss_fd + args.beta * loss_pd
-                            loss_list = [loss, loss_fd, loss_pd]
-                            parameters = [p for p in model.parameters() if p.requires_grad ]
-                            loss, alpha = mul_loss(losses=loss_list, shared_parameters=parameters)
+                        #     mul_loss = FAMO(n_tasks=len(loss_list), device=device)
+                        parameters = [p for p in model.parameters() if p.requires_grad ]
+                        loss, alpha = mul_loss(losses=loss_list, shared_parameters=parameters)
                     else:
                         loss.backward()
                     optimizer.second_step(zero_grad=True)
