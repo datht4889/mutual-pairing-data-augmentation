@@ -586,6 +586,37 @@ def train(local_rank, args):
                             loss_pd = -torch.mean(torch.sum(prev_p * p, dim = -1), dim = 0)
                         else:
                             loss_pd = 0
+
+                        if args.mul_task_type == 'PCGrad':
+                            mul_loss = PCGrad(
+                                device=device,
+                                n_tasks=len(loss),
+                            )
+                        if args.mul_task_type == 'IMTLG':
+                            mul_loss = IMTLG(
+                                device=device,
+                                n_tasks=len(loss),
+                            )
+                        
+                        
+                        if args.mul_task_type == 'MGDA':
+                            mul_loss = MGDA(
+                                device=device,
+                                n_tasks=len(loss),
+                            )   
+
+                        if args.mul_task_type == 'NashMTL':
+                            mul_loss = NashMTL(n_tasks=len(loss), device=device)
+                            
+                        if args.mul_task_type == 'FairGrad':
+                            mul_loss = FairGrad(n_tasks=len(loss), device=device)
+
+                        # if args.mul_task_type == 'ExcessMTL':
+                        #     mul_loss = ExcessMTL(n_tasks=len(loss), device=device)
+
+                        # if args.mul_task_type == 'FAMO':
+                        #     mul_loss = FAMO(n_tasks=len(loss), device=device)
+                        
                         # loss_pd = criterion_pd(torch.cat([item / T for item in outputs]), torch.cat([item / T for item in prev_outputs]))
                         if args.dweight_loss and stage > 0:
                             loss = loss * (1 - w) + (loss_fd + loss_pd) * w
@@ -594,7 +625,7 @@ def train(local_rank, args):
                             # loss = loss + args.alpha * loss_fd + args.beta * loss_pd
                             loss_list = [loss, loss_fd, loss_pd]
                             parameters = [p for p in model.parameters() if p.requires_grad ]
-                            loss, alpha = args.mul_loss(losses=loss_list, shared_parameters=parameters)
+                            loss, alpha = mul_loss(losses=loss_list, shared_parameters=parameters)
                     else:
                         loss.backward()
                     optimizer.second_step(zero_grad=True)

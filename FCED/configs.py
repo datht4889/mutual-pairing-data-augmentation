@@ -150,4 +150,4 @@ class Config:
         self.rho = 0.05
         self.skip_first_cl = "ucl+tlcl"
         self.method = None
-        self.mul_loss = FairGrad(n_tasks=3, device=self.device)
+        self.mul_task_type = 'FairGrad'
