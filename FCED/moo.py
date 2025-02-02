@@ -323,7 +323,7 @@ class FairGrad(WeightMethod):
         extra_outputs : dict
             Additional outputs, including task weights.
         """
-        alpha = self.kwargs.get("FairGrad_alpha", 0.8)
+        alpha = self.kwargs.get("FairGrad_alpha", 0.5)
 
         if representation is not None:
             raise ValueError("FairGrad does not support representation gradients (rep_grad=True)")
