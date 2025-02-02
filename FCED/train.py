@@ -113,6 +113,8 @@ def train(local_rank, args):
 
 
     best_logger = open("./LOSS_LOG.txt", 'a')
+    best_logger.writelines(f"MOO:  {args.mul_task_type}")
+    best_logger.write('\n')
     # parameters = [param for param in model.input_map.parameters()]
     # parameters = [param for param in model.parameters()]
         
