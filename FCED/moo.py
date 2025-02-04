@@ -323,7 +323,7 @@ class FairGrad(WeightMethod):
         extra_outputs : dict
             Additional outputs, including task weights.
         """
-        alpha = self.kwargs.get("FairGrad_alpha", 0.4)
+        alpha = self.kwargs.get("FairGrad_alpha", 0.5)
 
         if representation is not None:
             raise ValueError("FairGrad does not support representation gradients (rep_grad=True)")
@@ -385,6 +385,8 @@ class FairGrad(WeightMethod):
             grads.append(grad_flat)
 
         return torch.stack(grads)
+
+
 
 class LinearScalarization(WeightMethod):
     """Linear scalarization baseline L = sum_j w_j * l_j where l_j is the loss for task j and w_h"""

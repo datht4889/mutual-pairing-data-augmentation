@@ -597,6 +597,8 @@ def train(local_rank, args):
                         else:
                             # loss = loss + args.alpha * loss_fd + args.beta * loss_pd
                             loss_list = [loss, loss_fd, loss_pd]
+                            alpha_w = 0.5
+                            loss_list = [alpha_w*loss + sum(loss_list), alpha_w*loss_fd + sum(loss_list), alpha_w*loss_pd + sum(loss_list)]
 
                         if args.mul_task_type == 'PCGrad':
                             mul_loss = PCGrad(
