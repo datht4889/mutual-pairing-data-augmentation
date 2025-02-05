@@ -595,13 +595,11 @@ def train(local_rank, args):
                             # loss = loss * (1 - w) + (loss_fd + loss_pd) * w
                             # loss.backward()
                             loss_list = [loss * (1 - w), loss_fd * w, loss_pd * w]
-                            print("____ENSEMBLE____1")
                         else:
                             # loss = loss + args.alpha * loss_fd + args.beta * loss_pd
-                            loss_list = [loss, loss_fd, loss_pd]
+                            loss_list = [loss, args.alpha * loss_fd, args.beta * loss_pd]
                             alpha_w = 0.5
                             loss_list = [alpha_w*loss + sum(loss_list), alpha_w*loss_fd + sum(loss_list), alpha_w*loss_pd + sum(loss_list)]
-                            print("____ENSEMBLE____2")
 
                         if args.mul_task_type == 'PCGrad':
                             mul_loss = PCGrad(
