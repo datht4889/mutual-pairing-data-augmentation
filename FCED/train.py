@@ -557,6 +557,7 @@ def train(local_rank, args):
                         
                         
                     if stage > 0 and args.distill != "none":
+                        print("____Enter Distill____")
                         prev_model.eval()
                         with torch.no_grad():
                             prev_return_dict = prev_model(train_x, train_masks, train_span)
@@ -591,9 +592,9 @@ def train(local_rank, args):
 
                         # loss_pd = criterion_pd(torch.cat([item / T for item in outputs]), torch.cat([item / T for item in prev_outputs]))
                         if args.dweight_loss and stage > 0:
-                            loss = loss * (1 - w) + (loss_fd + loss_pd) * w
+                            # loss = loss * (1 - w) + (loss_fd + loss_pd) * w
                             # loss.backward()
-                            loss_list = [loss]
+                            loss_list = [loss * (1 - w), loss_fd * w, loss_pd * w]
                             print("____ENSEMBLE____1")
                         else:
                             # loss = loss + args.alpha * loss_fd + args.beta * loss_pd
