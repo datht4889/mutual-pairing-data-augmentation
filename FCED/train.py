@@ -557,7 +557,6 @@ def train(local_rank, args):
                         
                         
                     if stage > 0 and args.distill != "none":
-                        print("____Enter Distill____")
                         prev_model.eval()
                         with torch.no_grad():
                             prev_return_dict = prev_model(train_x, train_masks, train_span)
