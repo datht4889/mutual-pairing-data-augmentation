@@ -386,6 +386,151 @@ class FairGrad(WeightMethod):
 
         return torch.stack(grads)
 
+class ExcessMTL(WeightMethod):
+    r"""ExcessMTL.
+
+    This method is proposed in `Robust Multi-Task Learning with Excess Risks (ICML 2024) <https://openreview.net/forum?id=JzWFmMySpn>`_ \
+    and implemented by modifying from the `official PyTorch implementation <https://github.com/yifei-he/ExcessMTL/blob/main/LibMTL/LibMTL/weighting/ExcessMTL.py>`_. 
+
+    """
+
+    def __init__(
+            self, 
+            n_tasks: int, 
+            device: torch.device, 
+            max_norm: float = 1.0,
+            **kwargs):
+        
+        super().__init__(
+            n_tasks=n_tasks, 
+            device=device)
+        
+        self.max_norm = max_norm
+        
+        self.loss_weight = torch.ones(n_tasks, device=device, requires_grad=False)
+        self.grad_sum = None
+        self.first_epoch = True
+        self.kwargs = kwargs
+        self.robust_step_size = kwargs.get("robust_step_size", 1e-4)
+        self.rep_grad = kwargs.get("rep_grad", False)
+
+    def _compute_grad(self, losses: torch.Tensor, parameters: List[torch.nn.parameter.Parameter]):
+        """
+        Compute gradients of the losses w.r.t. the shared parameters.
+
+        Parameters
+        ----------
+        losses : torch.Tensor
+        parameters : List[torch.nn.parameter.Parameter]
+
+        Returns
+        -------
+        grads : torch.Tensor
+            Matrix of gradients (n_tasks x n_parameters).
+        """
+        grads = {}
+        for i in range(self.n_tasks):
+            grad = list(torch.autograd.grad(
+                    losses[i], 
+                    parameters, 
+                    retain_graph=True,
+                    allow_unused=True
+                ))
+
+            grad = [
+                g.flatten() if g is not None and not torch.isnan(g).any() else torch.zeros_like(p, device=self.device).flatten()
+                for g, p in zip(grad, parameters)
+            ]
+            grad_flat = torch.cat(grad)
+            # grad_flat = torch.cat([torch.flatten(g) for g in grad])
+            if torch.isnan(grad_flat).any():
+                raise ValueError("Gradient value contains NaN.")
+            grads[i] = grad_flat
+        return torch.stack(tuple(v for v in grads.values()))
+        
+
+    def get_weighted_loss(
+        self,
+        losses: torch.Tensor,
+        shared_parameters: Union[
+            List[torch.nn.Parameter], torch.Tensor
+        ] = None,
+        **kwargs,
+    ):
+        # Compute gradients
+        shared_grads = self._compute_grad(losses, shared_parameters)
+
+        # if self.rep_grad:
+        #     per_grads, shared_grads = grads[0], grads[1]
+        #     grads = []
+        #     for grad in per_grads:
+        #         grads.append(torch.sum(grad, dim=0))
+        #     grads = torch.stack(grads)
+        # else:
+        #     shared_grads = grads
+
+        if self.grad_sum is None:
+            self.grad_sum = torch.zeros_like(shared_grads)
+
+        w = torch.zeros(self.n_tasks, device=self.device)
+        for i in range(self.n_tasks):
+            self.grad_sum[i] += shared_grads[i] ** 2
+            grad_i = shared_grads[i]
+            h_i = torch.sqrt(self.grad_sum[i] + 1e-7)
+            w[i] = grad_i * (1 / h_i) @ grad_i.t()
+            
+
+        if self.first_epoch:
+            self.initial_w = w
+            self.first_epoch = False
+        else:
+            w = w / (self.initial_w + 1e-4)
+            self.loss_weight = self.loss_weight * torch.exp(w * self.robust_step_size)
+            self.loss_weight = self.loss_weight / self.loss_weight.sum() * self.n_tasks
+            if self.loss_weight.isnan().any():
+                print("Loss weight: ", self.loss_weight)
+                print("Loss weight sum: ", self.loss_weight.sum())
+                raise ValueError("loss_weight contains NaN in weighted_methods.py")
+            self.loss_weight = self.loss_weight.detach().clone()
+
+        # Compute weighted loss
+        try:
+            # loss = torch.mul(torch.Tensor(losses).to(self.device), self.loss_weight).sum()
+            loss = sum([losses[i] * self.loss_weight[i] for i in range(len(self.loss_weight))])
+            extra_outputs = {'loss_weights': self.loss_weight.cpu().detach().numpy()}
+            return loss, extra_outputs
+        except:
+            print(losses)
+            raise ValueError("ExcessMTL failed")
+        
+    def backward(
+        self,
+        losses: torch.Tensor,
+        shared_parameters: Union[
+            List[torch.nn.parameter.Parameter], torch.Tensor
+        ] = None,
+        task_specific_parameters: Union[
+            List[torch.nn.parameter.Parameter], torch.Tensor
+        ] = None,
+        **kwargs,
+    ) -> Tuple[Union[torch.Tensor, None], Union[Dict, None]]:
+        #mags = [abs(i.item())+1e-8 for i in losses]
+        #losses = [i/mags[idx] for idx, i in enumerate(losses)]
+        loss, extra_outputs = self.get_weighted_loss(
+            losses=losses,
+            shared_parameters=shared_parameters,
+            **kwargs,
+        )
+        loss.backward()
+
+        # make sure the solution for shared params has norm <= self.eps
+        if self.max_norm > 0:
+            torch.nn.utils.clip_grad_norm_(shared_parameters, 
+                                           self.max_norm, 
+                                           error_if_nonfinite=True
+                                           )
+
+        return loss, extra_outputs
 
 
 class LinearScalarization(WeightMethod):

@@ -627,8 +627,8 @@ def train(local_rank, args):
                         if args.mul_task_type == 'FairGrad':
                             mul_loss = FairGrad(n_tasks=len(loss_list), device=device)
 
-                        # if args.mul_task_type == 'ExcessMTL':
-                        #     mul_loss = ExcessMTL(n_tasks=len(loss_list), device=device)
+                        if args.mul_task_type == 'ExcessMTL':
+                            mul_loss = ExcessMTL(n_tasks=len(loss_list), device=device)
 
                         # if args.mul_task_type == 'FAMO':
                         #     mul_loss = FAMO(n_tasks=len(loss_list), device=device)
